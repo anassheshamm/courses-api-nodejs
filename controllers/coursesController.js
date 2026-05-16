@@ -1,24 +1,28 @@
 const Course = require("../models/course");
+const httpStatusText = require("../utils/httpStatusText");
 
 //get all courses
 const getAllCourses = async (req, res) => {
     const courses = await Course.find();
-    res.json(courses);
+    res.json({status: httpStatusText.SUCCESS, data: {courses}});
 };
 
 //get course by id
 const getCourseById = async (req, res) => {
-    const course = await Course.findById(req.params.courseid);
-    if (!course) {
-        res.status(404).send("Course not found");
-    } else {
-        res.json(course);
+    try {
+        const course = await Course.findById(req.params.courseid);
+        if (!course) {
+            res.status(404).json({status: httpStatusText.FAIL, data: {message: "Course not found"}});
+        } else {
+            res.json({status: httpStatusText.SUCCESS, data: {course}});
+        }
+    } catch (error) {
+        res.status(400).json({status: httpStatusText.ERROR, data: {message: error.message}, code:400});
     }
 };
 
 //create a new course
 const createCourse = async (req, res) => {
-    console.log(req.body);
 
     const course = new Course({
         title: req.body.title,
@@ -26,7 +30,7 @@ const createCourse = async (req, res) => {
     });
 
     await course.save();
-    res.status(201).json(course);
+    res.status(201).json({status: httpStatusText.SUCCESS, data: {course}});
 };
 
 //update a course
@@ -36,9 +40,9 @@ const updateCourse = async (req, res) => {
         price: req.body.price
     }, { new: true });
     if (!course) {
-        res.status(404).send("Course not found");
+        res.status(404).json({status: httpStatusText.FAIL, message: "Course not found"});
     } else {
-        res.json(course);
+        res.json({status: httpStatusText.SUCCESS, data: {course}});
     }
 };
 
@@ -48,10 +52,10 @@ const deleteCourse = async (req, res) => {
     const course =  await Course.findByIdAndDelete(req.params.courseid);
 
     if (!course) {
-        return res.status(404).send("Course not found");
+        return res.status(404).json({status: httpStatusText.FAIL, message: "Course not found"});
     }
 
-    res.json({message: "Course deleted successfully"});
+    res.json({status: httpStatusText.SUCCESS, data: {message: "Course deleted successfully"}});
 
 };
 
