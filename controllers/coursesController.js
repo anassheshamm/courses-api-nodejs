@@ -3,21 +3,28 @@ const httpStatusText = require("../utils/httpStatusText");
 
 //get all courses
 const getAllCourses = async (req, res) => {
-    const courses = await Course.find();
+
+    const limit = parseInt(req.query.limit) || 2;
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * limit;
+
+    console.log(req.query);
+    
+    const courses = await Course.find({}, "-__v").limit(limit).skip(skip);
     res.json({status: httpStatusText.SUCCESS, data: {courses}});
 };
 
 //get course by id
 const getCourseById = async (req, res) => {
     try {
-        const course = await Course.findById(req.params.courseid);
+        const course = await Course.findById(req.params.courseid, "-__v");
         if (!course) {
-            res.status(404).json({status: httpStatusText.FAIL, data: {message: "Course not found"}});
+            res.status(404).json({status: httpStatusText.FAIL, message: "Course not found"});
         } else {
             res.json({status: httpStatusText.SUCCESS, data: {course}});
         }
     } catch (error) {
-        res.status(400).json({status: httpStatusText.ERROR, data: {message: error.message}, code:400});
+        res.status(400).json({status: httpStatusText.ERROR, message: error.message, code:400});
     }
 };
 
