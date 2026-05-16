@@ -1,13 +1,14 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
-const port = 4000;
+const port = process.env.PORT || 4000;
 
 const mongoose = require('mongoose');
 
 app.use(express.json());
 
 // DB connection
-mongoose.connect("mongodb://127.0.0.1:27017/courseAPI")
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.log(err));
 
