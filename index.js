@@ -2,8 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 4000;
-
 const mongoose = require('mongoose');
+const httpStatusText = require("./utils/httpStatusText");
 
 app.use(express.json());
 
@@ -16,9 +16,6 @@ mongoose.connect(process.env.MONGODB_URI)
 
 
 // to parse the incoming request body as JSON, we need to use the express.json() middleware. This middleware is built into Express and allows us to easily handle JSON data sent in the request body.
-
-// const { courses } = require('./data/courses');
-
 const coursesRouter = require('./routes/courses');
 // we use the app.use() method to mount the coursesRouter on the /api/courses path. This means that any requests to /api/courses will be handled by the coursesRouter, which is defined in the routes/courses.js file.
 app.use('/api/courses', coursesRouter);
@@ -32,6 +29,13 @@ app.use(logger);
 
 const errorHandler = require('./middleware/errorHandler');
 app.use(errorHandler);
+
+
+app.use((req, res) => {
+    res.status(404).json({status: httpStatusText.ERROR, message: "Route not found"});
+    // res.json("Route not found");
+});
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
