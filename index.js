@@ -9,16 +9,24 @@ app.use(express.json());
 
 // DB connection
 mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log("MongoDB Connected"))
+.then(() => {
+    console.log("MongoDB Connected");
+    console.log(process.env.MONGODB_URI);
+    // console.log(mongoose.connection.name);
+})
 .catch(err => console.log(err));
+
 
 
 
 
 // to parse the incoming request body as JSON, we need to use the express.json() middleware. This middleware is built into Express and allows us to easily handle JSON data sent in the request body.
 const coursesRouter = require('./routes/courses');
+const usersRouter = require('./routes/users.route');
+
 // we use the app.use() method to mount the coursesRouter on the /api/courses path. This means that any requests to /api/courses will be handled by the coursesRouter, which is defined in the routes/courses.js file.
 app.use('/api/courses', coursesRouter);
+app.use('/api/users', usersRouter);
 
 
 function logger(req, res, next) {
