@@ -1,6 +1,7 @@
 const User = require("../models/user.model");
 const httpStatusText = require("../utils/httpStatusText");
 const bcrypt = require("bcryptjs"); 
+const jwt = require("jsonwebtoken");
 
 const getAllUsers = async (req, res) => {
     const limit = parseInt(req.query.limit) || 2;
@@ -52,15 +53,16 @@ if (!isPasswordValid) {
     return res.status(400).json({status: httpStatusText.FAIL, message: "Invalid email or password"});   
 }
 
-res.status(200).json({status: httpStatusText.SUCCESS, message: "Login successful"});
+// Generate JWT token
+const token = jwt.sign({ id: user._id, email: user.email}, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
 
+
+res.status(200).json({status: httpStatusText.SUCCESS, message: "Login successful", data: { token }});
 
 }catch (error) {
     res.status(500).json({status: httpStatusText.ERROR, message: error.message, code:500});
 }
 }
-
-
 
 
 
