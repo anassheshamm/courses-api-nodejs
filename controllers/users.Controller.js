@@ -13,8 +13,19 @@ const getAllUsers = async (req, res) => {
 };
 
 
+const getUserProfile = async (req, res) => {
+        const user = req.currentUser.id; // Get the current user information from the request object (set by verifyToken middleware)
+        const userProfile = await User.findById(user, "-__v -password"); // Fetch the user profile from the database, excluding sensitive fields
+        if (!userProfile) {
+            return res.status(404).json({status: httpStatusText.FAIL, message: "User not found"});
+        }
+        res.json({status: httpStatusText.SUCCESS, data: {userProfile}}); // Send the user profile in the response
+    
+}
+
+
 const registerUser = async (req, res) => {
-    const {firstname, lastname, email, password} = req.body;
+    const {firstname, lastname, email, password, role} = req.body;
 
     const existingUser = await User.findOne({email});
     if (existingUser) {
@@ -23,46 +34,38 @@ const registerUser = async (req, res) => {
 
     // password hashing
     const hashedPassword = await bcrypt.hash(password, 10);
-    try {
+    
         const user = new User({
             firstname,
             lastname,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role
         });
 
             await user.save(); 
             res.status(201).json({status: httpStatusText.SUCCESS, data: {user}});
-    } catch (error) {
-        res.status(400).json({status: httpStatusText.ERROR, message: error.message, code:400});
-    }
 }
 
 
 const loginUser = async (req, res) => {
-    try {
-const {email, password} = req.body;
+    const {email, password,} = req.body;
 
-const user = await User.findOne({email});
-if (!user) {
-    return res.status(400).json({status: httpStatusText.FAIL, message: "Invalid email or password"});   
+    const user = await User.findOne({email});
+        if (!user) {
+            return res.status(400).json({status: httpStatusText.FAIL, message: "Invalid email or password"});   
 }
 
-const isPasswordValid = await bcrypt.compare(password, user.password);
-if (!isPasswordValid) {
-    return res.status(400).json({status: httpStatusText.FAIL, message: "Invalid email or password"});   
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({status: httpStatusText.FAIL, message: "Invalid email or password"});   
 }
 
 // Generate JWT token
-const token = jwt.sign({ id: user._id, email: user.email}, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
-
-
-res.status(200).json({status: httpStatusText.SUCCESS, message: "Login successful", data: { token }});
-
-}catch (error) {
-    res.status(500).json({status: httpStatusText.ERROR, message: error.message, code:500});
+    const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
+        res.status(200).json({status: httpStatusText.SUCCESS, message: "Login successful", data: { token }});
 }
-}
+
 
 
 
@@ -71,5 +74,6 @@ res.status(200).json({status: httpStatusText.SUCCESS, message: "Login successful
 module.exports = {
     getAllUsers,
     registerUser,
-    loginUser
+    loginUser,
+    getUserProfile
 };
