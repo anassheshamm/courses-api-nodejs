@@ -16,16 +16,14 @@ const getAllCourses = async (req, res) => {
 
 //get course by id
 const getCourseById = async (req, res) => {
-    try {
+    
         const course = await Course.findById(req.params.courseid, "-__v");
         if (!course) {
             res.status(404).json({status: httpStatusText.FAIL, message: "Course not found"});
         } else {
             res.json({status: httpStatusText.SUCCESS, data: {course}});
         }
-    } catch (error) {
-        res.status(400).json({status: httpStatusText.ERROR, message: error.message, code:400});
-    }
+    
 };
 
 //create a new course
