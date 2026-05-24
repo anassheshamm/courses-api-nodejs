@@ -4,6 +4,8 @@ const userController = require("../controllers/users.Controller");
 const verifyToken = require("../middleware/verifyToken");
 const allowedTo = require("../middleware/allowedTo");
 const asyncWrapper = require("../middleware/asyncWrapper");
+const { loginSchema,registerSchema,refreshTokenSchema} = require("../validators/auth.validator");
+const validateSchema = require("../middleware/validateSchema");
 
 router.route("/")
     .get(verifyToken,allowedTo("admin"), asyncWrapper(userController.getAllUsers));
@@ -12,13 +14,13 @@ router.route("/profile")
     .get(verifyToken, asyncWrapper(userController.getUserProfile));
 
 router.route("/register")
-    .post(asyncWrapper(userController.registerUser));
+    .post(validateSchema(registerSchema), asyncWrapper(userController.registerUser));
 
 router.route("/login")
-    .post(asyncWrapper(userController.loginUser));
+    .post(validateSchema(loginSchema), asyncWrapper(userController.loginUser));
 
 router.route("/refresh-token")
-    .post(asyncWrapper(userController.refreshTokenHandler));
+    .post(validateSchema(refreshTokenSchema), asyncWrapper(userController.refreshTokenHandler));
 
 router.route("/logout")
     .post(verifyToken, asyncWrapper(userController.logoutUser));
