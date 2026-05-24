@@ -2,6 +2,8 @@ const User = require("../models/user.model");
 const httpStatusText = require("../utils/httpStatusText");
 const bcrypt = require("bcryptjs"); 
 const jwt = require("jsonwebtoken");
+const AppError = require("../utils/appError");
+
 
 const getAllUsers = async (req, res) => {
     const limit = parseInt(req.query.limit) || 2;
@@ -14,14 +16,15 @@ const getAllUsers = async (req, res) => {
 
 
 const getUserProfile = async (req, res) => {
+
         const user = req.currentUser.id; // Get the current user information from the request object (set by verifyToken middleware)
         const userProfile = await User.findById(user, "-__v -password"); // Fetch the user profile from the database, excluding sensitive fields
         if (!userProfile) {
-            return res.status(404).json({status: httpStatusText.FAIL, message: "User not found"});
+            throw new AppError("User not found", 404);
         }
         res.json({status: httpStatusText.SUCCESS, data: {userProfile}}); // Send the user profile in the response
-    
 }
+
 
 
 const registerUser = async (req, res) => {
@@ -29,7 +32,7 @@ const registerUser = async (req, res) => {
 
     const existingUser = await User.findOne({email});
     if (existingUser) {
-        return res.status(400).json({status: httpStatusText.FAIL, message: "Email already exists"});
+        throw new AppError("Email already exists", 400);
     }
 
     // password hashing
@@ -53,12 +56,12 @@ const loginUser = async (req, res) => {
 
     const user = await User.findOne({email});
         if (!user) {
-            return res.status(400).json({status: httpStatusText.FAIL, message: "Invalid email or password"});   
+            throw new AppError("Invalid email or password", 400);   
 }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(400).json({status: httpStatusText.FAIL, message: "Invalid email or password"});   
+            throw new AppError("Invalid email or password", 400);   
 }
 
 // Generate JWT token

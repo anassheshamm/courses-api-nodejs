@@ -1,5 +1,7 @@
 const Course = require("../models/course");
 const httpStatusText = require("../utils/httpStatusText");
+const AppError = require("../utils/appError");
+
 
 //get all courses
 const getAllCourses = async (req, res) => {
@@ -19,7 +21,7 @@ const getCourseById = async (req, res) => {
     
         const course = await Course.findById(req.params.courseid, "-__v");
         if (!course) {
-            res.status(404).json({status: httpStatusText.FAIL, message: "Course not found"});
+            throw new AppError("Course not found", 404);
         } else {
             res.json({status: httpStatusText.SUCCESS, data: {course}});
         }
@@ -45,7 +47,7 @@ const updateCourse = async (req, res) => {
         price: req.body.price
     }, { new: true });
     if (!course) {
-        res.status(404).json({status: httpStatusText.FAIL, message: "Course not found"});
+        throw new AppError("Course not found", 404);
     } else {
         res.json({status: httpStatusText.SUCCESS, data: {course}});
     }
@@ -57,7 +59,7 @@ const deleteCourse = async (req, res) => {
     const course =  await Course.findByIdAndDelete(req.params.courseid);
 
     if (!course) {
-        return res.status(404).json({status: httpStatusText.FAIL, message: "Course not found"});
+        throw new AppError("Course not found", 404);
     }
 
     res.json({status: httpStatusText.SUCCESS, data: {message: "Course deleted successfully"}});
