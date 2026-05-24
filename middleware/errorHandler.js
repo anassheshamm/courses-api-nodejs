@@ -1,8 +1,26 @@
 const errorHandler = (err, req, res, next) => {
 
-    res.status(err.statusCode || 500).json({
+    // Mongoose Validation Error
+    if (err.name === "ValidationError") {
 
-        message: err.message || "Something went wrong"
+        const errors = Object.values(err.errors)
+            .map(val => val.message);
+
+        err.statusCode = 400;
+
+        err.message = errors;
+    }
+
+
+    err.statusCode = err.statusCode || 500;
+
+    err.message = err.message || "Internal Server Error";
+
+    res.status(err.statusCode).json({
+
+        status: err.statusCode >= 500 ? "error" : "fail",
+
+        message: err.message
 
     });
 

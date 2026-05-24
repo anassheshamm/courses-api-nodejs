@@ -30,10 +30,10 @@ const getUserProfile = async (req, res) => {
 const registerUser = async (req, res) => {
     const {firstname, lastname, email, password, role} = req.body;
 
-    const existingUser = await User.findOne({email});
-    if (existingUser) {
-        throw new AppError("Email already exists", 400);
-    }
+    // const existingUser = await User.findOne({email});
+    // if (existingUser) {
+    //     throw new AppError("Email already exists", 400);
+    // }
 
     // password hashing
     const hashedPassword = await bcrypt.hash(password, 10);
