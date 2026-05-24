@@ -17,4 +17,10 @@ router.route("/register")
 router.route("/login")
     .post(asyncWrapper(userController.loginUser));
 
+router.route("/refresh-token")
+    .post(asyncWrapper(userController.refreshTokenHandler));
+
+router.route("/logout")
+    .post(verifyToken, asyncWrapper(userController.logoutUser));
+
 module.exports = router;
