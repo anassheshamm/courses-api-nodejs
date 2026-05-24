@@ -8,6 +8,7 @@ const errorHandler = require('./middleware/errorHandler');
 // to parse the incoming request body as JSON, we need to use the express.json() middleware. This middleware is built into Express and allows us to easily handle JSON data sent in the request body.
 const coursesRouter = require('./routes/courses');
 const usersRouter = require('./routes/users.route');
+const authRouter = require('./routes/auth.route');
 
 app.use(express.json());
 
@@ -25,6 +26,7 @@ app.use(logger);
 // we use the app.use() method to mount the coursesRouter on the /api/courses path. This means that any requests to /api/courses will be handled by the coursesRouter, which is defined in the routes/courses.js file.
 app.use('/api/courses', coursesRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/auth', authRouter);
 
 
 function logger(req, res, next) {

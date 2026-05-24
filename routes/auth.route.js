@@ -7,11 +7,17 @@ const asyncWrapper = require("../middleware/asyncWrapper");
 const { loginSchema,registerSchema,refreshTokenSchema} = require("../validators/auth.validator");
 const validateSchema = require("../middleware/validateSchema");
 
-router.route("/")
-    .get(verifyToken,allowedTo("admin"), asyncWrapper(userController.getAllUsers));
 
-router.route("/profile")
-    .get(verifyToken, asyncWrapper(userController.getUserProfile));
+router.route("/register")
+    .post(validateSchema(registerSchema), asyncWrapper(userController.registerUser));
 
+router.route("/login")
+    .post(validateSchema(loginSchema), asyncWrapper(userController.loginUser));
+
+router.route("/refresh-token")
+    .post(validateSchema(refreshTokenSchema), asyncWrapper(userController.refreshTokenHandler));
+
+router.route("/logout")
+    .post(verifyToken, asyncWrapper(userController.logoutUser));
 
 module.exports = router;
