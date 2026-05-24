@@ -1,9 +1,10 @@
 const httpStatusText = require("../utils/httpStatusText");
+const AppError = require("../utils/appError");
 
 const allowedTo = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.currentUser.role)) {
-            return res.status(403).json({status: httpStatusText.FAIL, message: "Access denied. You do not have permission to perform this action."});
+            return next(new AppError("Access denied. You do not have permission to perform this action.", 403));
         }
         next();
     }

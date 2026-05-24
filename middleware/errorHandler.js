@@ -12,6 +12,16 @@ const errorHandler = (err, req, res, next) => {
     }
 
 
+    // monogose bad ObjectId
+    if (err.name === "CastError") {
+
+        err.statusCode = 404;
+
+        err.message = `Resource not found with id of ${err.value}`;
+    }
+
+
+
     err.statusCode = err.statusCode || 500;
 
     err.message = err.message || "Internal Server Error";
